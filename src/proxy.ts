@@ -1,10 +1,26 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { DEV_AUTH_BYPASS, DEV_ROLE_COOKIE } from "@/lib/dev";
 
 const PUBLIC_PATHS = ["/", "/auth/login", "/auth/signup"];
 
 export async function proxy(request: NextRequest) {
+  // Dev login bypass: never redirect, and let ?devRole= switch the active role.
+  if (DEV_AUTH_BYPASS) {
+    const response = NextResponse.next({ request });
+    // Ignore prefetch requests — they'd otherwise clobber the cookie with a
+    // link target the user never actually clicked.
+    const isPrefetch =
+      request.headers.get("next-router-prefetch") === "1" ||
+      request.headers.get("purpose") === "prefetch";
+    const devRole = request.nextUrl.searchParams.get("devRole");
+    if (!isPrefetch && (devRole === "creator" || devRole === "restaurant")) {
+      response.cookies.set(DEV_ROLE_COOKIE, devRole, { path: "/" });
+    }
+    return response;
+  }
+
   const response = NextResponse.next({ request });
 
   const supabase = createServerClient(

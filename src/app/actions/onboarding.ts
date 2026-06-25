@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { CreatorProfileSchema } from "@/lib/validations/creator";
 import { RestaurantProfileSchema } from "@/lib/validations/restaurant";
+import { syncCreatorScore } from "@/app/actions/scoring";
+import type { PlatformKind } from "@/types/database";
 import { redirect } from "next/navigation";
 
 export async function saveCreatorProfile(formData: FormData) {
@@ -14,6 +16,7 @@ export async function saveCreatorProfile(formData: FormData) {
     bio: formData.get("bio"),
     instagram_handle: formData.get("instagram_handle"),
     tiktok_handle: formData.get("tiktok_handle"),
+    youtube_handle: formData.get("youtube_handle"),
     follower_count: formData.get("follower_count"),
     engagement_rate: formData.get("engagement_rate"),
     niche_tags: formData.getAll("niche_tags"),
@@ -26,16 +29,51 @@ export async function saveCreatorProfile(formData: FormData) {
   const parsed = CreatorProfileSchema.safeParse(raw);
   if (!parsed.success) throw new Error(parsed.error.message);
 
-  const { error: upsertError } = await supabase
+  const { data: creator, error: upsertError } = await supabase
     .from("creator_profiles")
-    .upsert({ user_id: user.id, ...parsed.data });
+    .upsert({ user_id: user.id, ...parsed.data }, { onConflict: "user_id" })
+    .select("id")
+    .single();
   if (upsertError) throw new Error(upsertError.message);
+
+  // Sync the connected-platform rows (one per non-empty handle) that feed the
+  // UGC Score. Omit source/metrics from the upsert so a prior API sync isn't
+  // clobbered; absent handles get their platform row removed.
+  const creatorId = (creator as { id: string }).id;
+  const handles: { platform: PlatformKind; handle?: string }[] = [
+    { platform: "instagram", handle: parsed.data.instagram_handle },
+    { platform: "tiktok", handle: parsed.data.tiktok_handle },
+    { platform: "youtube", handle: parsed.data.youtube_handle },
+  ];
+  for (const { platform, handle } of handles) {
+    if (handle) {
+      await supabase
+        .from("creator_platforms")
+        .upsert(
+          { creator_id: creatorId, platform, handle },
+          { onConflict: "creator_id,platform" }
+        );
+    } else {
+      await supabase
+        .from("creator_platforms")
+        .delete()
+        .eq("creator_id", creatorId)
+        .eq("platform", platform);
+    }
+  }
 
   const { error: profileError } = await supabase
     .from("user_profiles")
     .update({ onboarding_complete: true })
     .eq("id", user.id);
   if (profileError) throw new Error(profileError.message);
+
+  // Compute an initial score so the creator shows up scored immediately.
+  try {
+    await syncCreatorScore(creatorId);
+  } catch (e) {
+    console.error("saveCreatorProfile: initial score sync failed", e);
+  }
 
   redirect("/discover");
 }

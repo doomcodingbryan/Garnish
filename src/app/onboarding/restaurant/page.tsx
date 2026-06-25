@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Wordmark } from "@/components/Wordmark";
 import { COLLAB_TYPES } from "@/lib/utils";
 import { useState } from "react";
 
@@ -35,15 +36,22 @@ export default function RestaurantOnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto max-w-lg space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Set up your restaurant profile</h1>
-          <p className="mt-1 text-muted-foreground">
+      <div className="mx-auto max-w-lg">
+        <div className="mb-6 flex justify-center">
+          <Wordmark size="lg" />
+        </div>
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-card-lg sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+            Final step
+          </p>
+          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">
+            Set up your restaurant profile
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             This is what creators will see when browsing opportunities.
           </p>
-        </div>
 
-        <form action={handleSubmit} className="space-y-6">
+          <form action={handleSubmit} className="mt-6 space-y-6">
           {/* Basic info */}
           <div className="space-y-4">
             <h2 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
@@ -124,12 +132,22 @@ export default function RestaurantOnboardingPage() {
             </button>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </p>
+            )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Saving…" : "Complete profile"}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              size="lg"
+              className="h-11 w-full"
+              disabled={loading}
+            >
+              {loading ? "Saving…" : "Complete profile"}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Handshake } from "lucide-react";
 import Nav from "@/components/Nav";
 import { MatchCard } from "@/components/MatchCard";
+import { buttonVariants } from "@/components/ui/button";
 import type { MatchWithParties } from "@/types/database";
 
 export default async function MatchesPage() {
@@ -28,12 +31,25 @@ export default async function MatchesPage() {
     <div className="min-h-screen bg-background">
       <Nav />
       <div className="mx-auto max-w-2xl px-4 py-10">
-        <h1 className="text-2xl font-bold mb-8">Matches</h1>
+        <h1 className="mb-8 font-display text-3xl font-semibold tracking-tight">
+          Matches
+        </h1>
 
         {matches.length === 0 && (
-          <div className="py-24 text-center text-muted-foreground">
-            <p>No matches yet.</p>
-            <p className="mt-1 text-sm">Accept a proposal to create a match.</p>
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card/50 py-20 text-center">
+            <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Handshake className="size-6" />
+            </div>
+            <p className="mt-4 font-medium">No matches yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Accept a proposal to create a match.
+            </p>
+            <Link
+              href="/proposals"
+              className={`${buttonVariants({ variant: "outline", size: "lg" })} mt-5`}
+            >
+              View proposals
+            </Link>
           </div>
         )}
 

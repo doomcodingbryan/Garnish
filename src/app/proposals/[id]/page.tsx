@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
+import { Utensils, ClipboardList, CalendarClock, DollarSign, MessageSquare } from "lucide-react";
 import Nav from "@/components/Nav";
 import { ProposalStatusBadge } from "@/components/ProposalStatusBadge";
 import { ProposalForm } from "@/components/ProposalForm";
+import { GradientAvatar } from "@/components/GradientAvatar";
+import { buttonVariants } from "@/components/ui/button";
 import {
   acceptProposal,
   declineProposal,
@@ -67,44 +70,88 @@ export default async function ProposalDetailPage({
   return (
     <div className="min-h-screen bg-background">
       <Nav />
-      <div className="mx-auto max-w-xl px-4 py-10 space-y-8">
+      <div className="mx-auto max-w-xl space-y-6 px-4 py-10">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl font-bold">Proposal</h1>
+        <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <GradientAvatar
+            name={other.display_name}
+            src={other.avatar_url}
+            className="size-12 text-base"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center gap-2">
+              <h1 className="font-display text-2xl font-semibold tracking-tight">
+                Proposal
+              </h1>
               <ProposalStatusBadge status={proposal.status} />
             </div>
             <p className="text-sm text-muted-foreground">
-              {isInitiator
-                ? <>You → <span className="font-medium text-foreground">{other.display_name}</span></>
-                : <><span className="font-medium text-foreground">{other.display_name}</span> → You</>}
+              {isInitiator ? (
+                <>
+                  You →{" "}
+                  <span className="font-medium text-foreground">
+                    {other.display_name}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="font-medium text-foreground">
+                    {other.display_name}
+                  </span>{" "}
+                  → You
+                </>
+              )}
             </p>
           </div>
         </div>
 
         {/* Terms */}
-        <div className="rounded-lg border divide-y">
-          {terms.meal_description && (
-            <TermRow label="Meal / experience" value={terms.meal_description} />
-          )}
-          <TermRow label="Deliverables" value={terms.deliverables} />
-          <TermRow
-            label="Posting window"
-            value={`${terms.posting_window_days} days`}
-          />
-          <TermRow label="Payment" value={formatCents(terms.payment_cents)} />
-          {terms.message && (
-            <TermRow label="Message" value={terms.message} />
-          )}
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+          <div className="border-b border-border px-5 py-3">
+            <p className="text-sm font-semibold">
+              {proposal.status === "countered" ? "Counter terms" : "Collab terms"}
+            </p>
+          </div>
+          <div className="divide-y divide-border">
+            {terms.meal_description && (
+              <TermRow
+                icon={Utensils}
+                label="Meal / experience"
+                value={terms.meal_description}
+              />
+            )}
+            <TermRow
+              icon={ClipboardList}
+              label="Deliverables"
+              value={terms.deliverables}
+            />
+            <TermRow
+              icon={CalendarClock}
+              label="Posting window"
+              value={`${terms.posting_window_days} days`}
+            />
+            <TermRow
+              icon={DollarSign}
+              label="Payment"
+              value={formatCents(terms.payment_cents)}
+              highlight
+            />
+            {terms.message && (
+              <TermRow
+                icon={MessageSquare}
+                label="Message"
+                value={terms.message}
+              />
+            )}
+          </div>
         </div>
 
         {/* Original terms note if countered */}
         {proposal.status === "countered" && (
-          <p className="text-xs text-muted-foreground">
+          <p className="rounded-lg bg-accent px-4 py-3 text-xs text-accent-foreground">
             Terms above reflect the counter offer.{" "}
             {isInitiator
-              ? "You can accept or decline — no further counters are allowed."
+              ? "You can accept or decline. No further counters are allowed."
               : "You countered this proposal."}
           </p>
         )}
@@ -116,7 +163,7 @@ export default async function ProposalDetailPage({
               <form action={acceptAction} className="flex-1">
                 <button
                   type="submit"
-                  className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                  className={`${buttonVariants({ size: "lg" })} h-11 w-full`}
                 >
                   Accept
                 </button>
@@ -126,17 +173,17 @@ export default async function ProposalDetailPage({
               <form action={declineAction} className="flex-1">
                 <button
                   type="submit"
-                  className="w-full rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+                  className={`${buttonVariants({ variant: "outline", size: "lg" })} h-11 w-full`}
                 >
                   Decline
                 </button>
               </form>
             )}
             {canWithdraw && (
-              <form action={withdrawAction}>
+              <form action={withdrawAction} className="flex-1">
                 <button
                   type="submit"
-                  className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
+                  className={`${buttonVariants({ variant: "outline", size: "lg" })} h-11 w-full`}
                 >
                   Withdraw
                 </button>
@@ -147,10 +194,10 @@ export default async function ProposalDetailPage({
 
         {/* Counter form */}
         {canCounter && (
-          <div className="space-y-4">
+          <div className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-card">
             <div className="flex items-center gap-2">
               <hr className="flex-1 border-border" />
-              <span className="text-xs text-muted-foreground uppercase tracking-wide">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
                 Counter offer
               </span>
               <hr className="flex-1 border-border" />
@@ -167,11 +214,28 @@ export default async function ProposalDetailPage({
   );
 }
 
-function TermRow({ label, value }: { label: string; value: string }) {
+function TermRow({
+  icon: Icon,
+  label,
+  value,
+  highlight,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="px-4 py-3">
-      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-      <p className="text-sm whitespace-pre-wrap">{value}</p>
+    <div className="flex gap-3 px-5 py-3.5">
+      <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+      <div className="min-w-0">
+        <p className="mb-0.5 text-xs text-muted-foreground">{label}</p>
+        <p
+          className={`whitespace-pre-wrap ${highlight ? "text-base font-semibold text-primary" : "text-sm"}`}
+        >
+          {value}
+        </p>
+      </div>
     </div>
   );
 }

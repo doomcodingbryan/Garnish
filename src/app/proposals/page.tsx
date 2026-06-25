@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Inbox, ChevronRight } from "lucide-react";
 import Nav from "@/components/Nav";
 import { ProposalStatusBadge } from "@/components/ProposalStatusBadge";
+import { GradientAvatar } from "@/components/GradientAvatar";
+import { buttonVariants } from "@/components/ui/button";
 import { formatCents } from "@/lib/utils";
 import type { ProposalWithParties } from "@/types/database";
 
@@ -38,13 +41,24 @@ export default async function ProposalsPage() {
     <div className="min-h-screen bg-background">
       <Nav />
       <div className="mx-auto max-w-2xl px-4 py-10">
-        <h1 className="text-2xl font-bold mb-8">Proposals</h1>
+        <h1 className="mb-8 font-display text-3xl font-semibold tracking-tight">
+          Proposals
+        </h1>
 
         {proposals.length === 0 && (
-          <div className="py-24 text-center text-muted-foreground">
-            <p>No proposals yet.</p>
-            <Link href="/discover" className="mt-2 text-sm underline underline-offset-2">
-              Browse to find someone to collaborate with
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card/50 py-20 text-center">
+            <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Inbox className="size-6" />
+            </div>
+            <p className="mt-4 font-medium">No proposals yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Find someone to collaborate with to get started.
+            </p>
+            <Link
+              href="/discover"
+              className={`${buttonVariants({ size: "lg" })} mt-5`}
+            >
+              Browse Discover
             </Link>
           </div>
         )}
@@ -80,10 +94,12 @@ export default async function ProposalsPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-8">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {title}
       </h2>
-      <div className="divide-y rounded-lg border overflow-hidden">{children}</div>
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card divide-y divide-border">
+        {children}
+      </div>
     </div>
   );
 }
@@ -102,20 +118,28 @@ function ProposalRow({
   return (
     <Link
       href={`/proposals/${proposal.id}`}
-      className="flex items-center justify-between px-4 py-3 bg-background hover:bg-muted/40 transition-colors"
+      className="group flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/40"
     >
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium shrink-0">
-          {other.display_name[0].toUpperCase()}
-        </div>
+      <div className="flex min-w-0 items-center gap-3">
+        <GradientAvatar
+          name={other.display_name}
+          src={other.avatar_url}
+          className="size-9 text-sm"
+        />
         <div className="min-w-0">
-          <p className="text-sm font-medium truncate">{other.display_name}</p>
+          <p className="truncate text-sm font-semibold">{other.display_name}</p>
           <p className="text-xs text-muted-foreground">
-            {isSender ? "You sent" : "Sent you"} · {formatCents(proposal.payment_cents)}
+            {isSender ? "You sent" : "Sent you"} ·{" "}
+            <span className="font-medium text-foreground">
+              {formatCents(proposal.payment_cents)}
+            </span>
           </p>
         </div>
       </div>
-      <ProposalStatusBadge status={proposal.status} />
+      <div className="flex items-center gap-2">
+        <ProposalStatusBadge status={proposal.status} />
+        <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+      </div>
     </Link>
   );
 }

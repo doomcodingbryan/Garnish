@@ -1,7 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { DEV_AUTH_BYPASS, getDevRole } from "@/lib/dev";
+import { createMockClient } from "@/lib/supabase/mock";
 
 export async function createClient() {
+  if (DEV_AUTH_BYPASS) {
+    return createMockClient(await getDevRole()) as unknown as SupabaseClient;
+  }
+
   const cookieStore = await cookies();
 
   return createServerClient(

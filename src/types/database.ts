@@ -1,4 +1,6 @@
 export type UserRole = "creator" | "restaurant";
+export type PlatformKind = "instagram" | "tiktok" | "youtube" | "other";
+export type MetricSource = "manual" | "api";
 export type ProposalStatus =
   | "pending"
   | "countered"
@@ -27,11 +29,49 @@ export interface CreatorProfile {
   bio: string | null;
   instagram_handle: string | null;
   tiktok_handle: string | null;
+  youtube_handle: string | null;
   follower_count: number;
   engagement_rate: number | null;
   niche_tags: string[];
   flat_rate_cents: number | null;
   location: string | null;
+  ugc_score: number | null;
+  ugc_tier: string | null;
+  ugc_components: ScoreComponents | null;
+  ugc_scored_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Raw per-post aggregates for one platform; powers the UGC Score. */
+export interface PlatformMetrics {
+  avg_likes: number | null;
+  avg_comments: number | null;
+  avg_views: number | null;
+  post_count: number | null;
+  posts_per_week: number | null;
+  last_post_at: string | null;
+}
+
+/** Sub-scores (0-100) that compose the overall UGC Score, plus a confidence (0-1). */
+export interface ScoreComponents {
+  engagement: number;
+  reach: number;
+  consistency: number;
+  breadth: number;
+  confidence: number;
+}
+
+export interface CreatorPlatform {
+  id: string;
+  creator_id: string;
+  platform: PlatformKind;
+  handle: string;
+  profile_url: string | null;
+  followers: number | null;
+  metrics: PlatformMetrics | null;
+  source: MetricSource;
+  last_synced_at: string | null;
   created_at: string;
   updated_at: string;
 }

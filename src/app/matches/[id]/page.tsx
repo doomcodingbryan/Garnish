@@ -1,10 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
+import {
+  Check,
+  Clock,
+  ClipboardList,
+  DollarSign,
+  CalendarClock,
+} from "lucide-react";
 import Nav from "@/components/Nav";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { GradientAvatar } from "@/components/GradientAvatar";
 import { confirmMatch } from "@/app/actions/matches";
 import { formatCents } from "@/lib/utils";
 import type { MatchStatus, MatchWithParties } from "@/types/database";
+import type { ComponentProps } from "react";
+
+type Variant = ComponentProps<typeof Badge>["variant"];
 
 const STATUS_LABELS: Record<MatchStatus, string> = {
   pending_both: "Awaiting both confirmations",
@@ -13,11 +25,11 @@ const STATUS_LABELS: Record<MatchStatus, string> = {
   confirmed: "Confirmed",
 };
 
-const STATUS_VARIANTS: Record<MatchStatus, "default" | "secondary" | "outline"> = {
-  pending_both: "secondary",
-  pending_creator: "outline",
-  pending_restaurant: "outline",
-  confirmed: "default",
+const STATUS_VARIANTS: Record<MatchStatus, Variant> = {
+  pending_both: "warning",
+  pending_creator: "warning",
+  pending_restaurant: "warning",
+  confirmed: "success",
 };
 
 export default async function MatchDetailPage({
@@ -55,39 +67,64 @@ export default async function MatchDetailPage({
   return (
     <div className="min-h-screen bg-background">
       <Nav />
-      <div className="mx-auto max-w-xl px-4 py-10 space-y-8">
+      <div className="mx-auto max-w-xl space-y-6 px-4 py-10">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl font-bold">Match</h1>
+        <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <GradientAvatar
+            name={other.display_name}
+            src={other.avatar_url}
+            className="size-12 text-base"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center gap-2">
+              <h1 className="font-display text-2xl font-semibold tracking-tight">
+                Match
+              </h1>
               <Badge variant={STATUS_VARIANTS[match.status]}>
                 {STATUS_LABELS[match.status]}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              with <span className="font-medium text-foreground">{other.display_name}</span>
+              with{" "}
+              <span className="font-medium text-foreground">
+                {other.display_name}
+              </span>
             </p>
           </div>
         </div>
 
         {/* Locked terms */}
-        <div className="rounded-lg border divide-y">
-          <TermRow label="Deliverables" value={match.deliverables} />
-          <TermRow label="Payment" value={formatCents(match.payment_cents)} />
-          <TermRow
-            label="Posting deadline"
-            value={new Date(match.posting_deadline).toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          />
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+          <div className="border-b border-border px-5 py-3">
+            <p className="text-sm font-semibold">Locked terms</p>
+          </div>
+          <div className="divide-y divide-border">
+            <TermRow
+              icon={ClipboardList}
+              label="Deliverables"
+              value={match.deliverables}
+            />
+            <TermRow
+              icon={DollarSign}
+              label="Payment"
+              value={formatCents(match.payment_cents)}
+              highlight
+            />
+            <TermRow
+              icon={CalendarClock}
+              label="Posting deadline"
+              value={new Date(match.posting_deadline).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            />
+          </div>
         </div>
 
         {/* Confirmation status */}
-        <div className="rounded-lg border divide-y text-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card divide-y divide-border">
           <ConfirmRow
             label={match.creator.display_name}
             confirmed={!!match.creator_confirmed_at}
@@ -105,7 +142,7 @@ export default async function MatchDetailPage({
           <form action={confirmAction}>
             <button
               type="submit"
-              className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              className={`${buttonVariants({ size: "lg" })} h-11 w-full`}
             >
               Confirm match
             </button>
@@ -113,14 +150,15 @@ export default async function MatchDetailPage({
         )}
 
         {hasConfirmed && match.status !== "confirmed" && (
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="rounded-xl bg-warning/15 px-4 py-3 text-center text-sm text-warning-foreground">
             You&apos;ve confirmed. Waiting for the other party.
           </p>
         )}
 
         {match.status === "confirmed" && (
-          <p className="text-sm text-center text-muted-foreground">
-            Both parties have confirmed. This collab is locked in.
+          <p className="flex items-center justify-center gap-2 rounded-xl bg-success/12 px-4 py-3 text-center text-sm font-medium text-success">
+            <Check className="size-4" />
+            Both parties confirmed. This collab is locked in.
           </p>
         )}
       </div>
@@ -128,11 +166,30 @@ export default async function MatchDetailPage({
   );
 }
 
-function TermRow({ label, value }: { label: string; value: string }) {
+function TermRow({
+  icon: Icon,
+  label,
+  value,
+  highlight,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="px-4 py-3">
-      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-      <p className="text-sm">{value}</p>
+    <div className="flex gap-3 px-5 py-3.5">
+      <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+      <div className="min-w-0">
+        <p className="mb-0.5 text-xs text-muted-foreground">{label}</p>
+        <p
+          className={
+            highlight ? "text-base font-semibold text-primary" : "text-sm"
+          }
+        >
+          {value}
+        </p>
+      </div>
     </div>
   );
 }
@@ -147,13 +204,21 @@ function ConfirmRow({
   isYou: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3">
+    <div className="flex items-center justify-between px-5 py-3.5">
       <span className="text-sm">
         {label} {isYou && <span className="text-muted-foreground">(you)</span>}
       </span>
-      <span className={confirmed ? "text-sm font-medium" : "text-sm text-muted-foreground"}>
-        {confirmed ? "Confirmed" : "Pending"}
-      </span>
+      {confirmed ? (
+        <span className="flex items-center gap-1 text-sm font-medium text-success">
+          <Check className="size-4" />
+          Confirmed
+        </span>
+      ) : (
+        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+          <Clock className="size-3.5" />
+          Pending
+        </span>
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { ProposalInput } from "@/lib/validations/proposal";
 
 const textareaClass =
-  "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 resize-none";
+  "flex min-h-[80px] w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
 
 interface ProposalFormProps {
   action: (formData: FormData) => Promise<void>;
@@ -54,7 +54,7 @@ export function ProposalForm({
           name="meal_description"
           maxLength={600}
           defaultValue={initialValues?.meal_description ?? ""}
-          placeholder="Describe what you're offering — tasting menu, brunch for two, etc."
+          placeholder="Describe what you're offering: tasting menu, brunch for two, etc."
           className={textareaClass}
         />
       </div>
@@ -124,7 +124,7 @@ export function ProposalForm({
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" size="lg" disabled={isPending} className="h-11 w-full">
         {isPending ? "Sending…" : submitLabel}
       </Button>
     </form>

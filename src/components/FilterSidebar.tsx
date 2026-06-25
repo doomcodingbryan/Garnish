@@ -8,8 +8,44 @@ import { Button } from "@/components/ui/button";
 import { NICHE_TAGS, COLLAB_TYPES, FOLLOWER_TIERS } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
 
-const selectClass =
-  "flex h-8 w-full items-center rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 text-foreground";
+type ChipOption = string | { label: string; value: string };
+
+function ChipRadioGroup({
+  name,
+  options,
+  current,
+  anyLabel,
+}: {
+  name: string;
+  options: readonly ChipOption[];
+  current: string;
+  anyLabel: string;
+}) {
+  const normalized = options.map((o) =>
+    typeof o === "string" ? { label: o, value: o } : o
+  );
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {[{ label: anyLabel, value: "" }, ...normalized].map((opt, i) => {
+        const checked = i === 0 ? current === "" : current === opt.value;
+        return (
+          <label key={opt.label} className="cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              value={opt.value}
+              defaultChecked={checked}
+              className="peer sr-only"
+            />
+            <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary">
+              {opt.label}
+            </span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
 
 export function FilterSidebar({ role }: { role: UserRole }) {
   const router = useRouter();
@@ -32,64 +68,88 @@ export function FilterSidebar({ role }: { role: UserRole }) {
   }
 
   return (
-    <aside className="w-52 shrink-0">
-      <form ref={formRef} onSubmit={applyFilters} className="space-y-5">
+    <aside className="w-60 shrink-0">
+      <form
+        ref={formRef}
+        onSubmit={applyFilters}
+        className="sticky top-24 space-y-5 rounded-2xl border border-border bg-card p-5 shadow-card"
+      >
         <div className="flex items-center justify-between">
-          <p className="font-semibold text-sm">Filters</p>
+          <p className="text-sm font-semibold">Filters</p>
           <button
             type="button"
             onClick={clearFilters}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="text-xs font-medium text-primary transition-colors hover:underline"
           >
             Clear all
           </button>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="location" className="text-xs">Location</Label>
+          <Label htmlFor="location" className="text-xs">
+            Location
+          </Label>
           <Input
             id="location"
             name="location"
             placeholder="e.g. New York"
             defaultValue={searchParams.get("location") ?? ""}
-            className="h-8 text-sm"
+            className="h-9 text-sm"
           />
         </div>
 
         {role === "restaurant" && (
           <>
+            <div className="space-y-2">
+              <Label className="text-xs">Sort by</Label>
+              <ChipRadioGroup
+                name="sort"
+                options={[{ label: "UGC Score", value: "ugc_score" }]}
+                current={searchParams.get("sort") ?? ""}
+                anyLabel="Followers"
+              />
+            </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor="niche" className="text-xs">Niche</Label>
-              <select
-                id="niche"
+              <Label htmlFor="min_score" className="text-xs">
+                Min UGC Score
+              </Label>
+              <Input
+                id="min_score"
+                name="min_score"
+                type="number"
+                min="0"
+                max="100"
+                placeholder="Any"
+                defaultValue={searchParams.get("min_score") ?? ""}
+                className="h-9 text-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs">Niche</Label>
+              <ChipRadioGroup
                 name="niche"
-                defaultValue={searchParams.get("niche") ?? ""}
-                className={selectClass}
-              >
-                <option value="">Any niche</option>
-                {NICHE_TAGS.map((tag) => (
-                  <option key={tag} value={tag}>{tag}</option>
-                ))}
-              </select>
+                options={NICHE_TAGS}
+                current={searchParams.get("niche") ?? ""}
+                anyLabel="Any"
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="tier" className="text-xs">Follower tier</Label>
-              <select
-                id="tier"
+            <div className="space-y-2">
+              <Label className="text-xs">Follower tier</Label>
+              <ChipRadioGroup
                 name="tier"
-                defaultValue={searchParams.get("tier") ?? ""}
-                className={selectClass}
-              >
-                <option value="">Any size</option>
-                {FOLLOWER_TIERS.map((t) => (
-                  <option key={t.label} value={t.label}>{t.label}</option>
-                ))}
-              </select>
+                options={FOLLOWER_TIERS.map((t) => t.label)}
+                current={searchParams.get("tier") ?? ""}
+                anyLabel="Any"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="max_rate" className="text-xs">Max rate ($)</Label>
+              <Label htmlFor="max_rate" className="text-xs">
+                Max rate ($)
+              </Label>
               <Input
                 id="max_rate"
                 name="max_rate"
@@ -97,7 +157,7 @@ export function FilterSidebar({ role }: { role: UserRole }) {
                 min="0"
                 placeholder="No limit"
                 defaultValue={searchParams.get("max_rate") ?? ""}
-                className="h-8 text-sm"
+                className="h-9 text-sm"
               />
             </div>
           </>
@@ -106,35 +166,32 @@ export function FilterSidebar({ role }: { role: UserRole }) {
         {role === "creator" && (
           <>
             <div className="space-y-1.5">
-              <Label htmlFor="cuisine" className="text-xs">Cuisine</Label>
+              <Label htmlFor="cuisine" className="text-xs">
+                Cuisine
+              </Label>
               <Input
                 id="cuisine"
                 name="cuisine"
                 placeholder="e.g. Italian"
                 defaultValue={searchParams.get("cuisine") ?? ""}
-                className="h-8 text-sm"
+                className="h-9 text-sm"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="collab_type" className="text-xs">Collab type</Label>
-              <select
-                id="collab_type"
+            <div className="space-y-2">
+              <Label className="text-xs">Collab type</Label>
+              <ChipRadioGroup
                 name="collab_type"
-                defaultValue={searchParams.get("collab_type") ?? ""}
-                className={selectClass}
-              >
-                <option value="">Any type</option>
-                {COLLAB_TYPES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
+                options={COLLAB_TYPES}
+                current={searchParams.get("collab_type") ?? ""}
+                anyLabel="Any"
+              />
             </div>
           </>
         )}
 
-        <Button type="submit" size="sm" className="w-full">
-          Apply
+        <Button type="submit" className="w-full">
+          Apply filters
         </Button>
       </form>
     </aside>

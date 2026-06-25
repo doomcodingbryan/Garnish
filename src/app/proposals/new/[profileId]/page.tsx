@@ -44,9 +44,14 @@ export default async function NewProposalPage({
       <Nav />
       <div className="mx-auto max-w-xl px-4 py-10">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold">Send a proposal</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
+            Send a proposal
+          </h1>
           <p className="mt-1 text-muted-foreground">
-            to <span className="font-medium text-foreground">{targetUser.display_name}</span>
+            to{" "}
+            <span className="font-medium text-foreground">
+              {targetUser.display_name}
+            </span>
           </p>
         </div>
 
@@ -80,7 +85,7 @@ async function ProposalTargetSummary({
     const cp = data as Pick<CreatorProfile, "instagram_handle" | "tiktok_handle" | "niche_tags" | "location">;
 
     return (
-      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-sm space-y-1">
+      <div className="space-y-1 rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-card">
         <div className="flex gap-3 text-muted-foreground">
           {cp.instagram_handle && <span>@{cp.instagram_handle}</span>}
           {cp.tiktok_handle && <span>@{cp.tiktok_handle} (TikTok)</span>}
@@ -103,7 +108,7 @@ async function ProposalTargetSummary({
   const rp = data as Pick<RestaurantProfile, "name" | "cuisine" | "location">;
 
   return (
-    <div className="rounded-lg border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+    <div className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-card">
       {rp.cuisine} · {rp.location}
     </div>
   );

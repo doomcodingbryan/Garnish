@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Wordmark } from "@/components/Wordmark";
 import { NICHE_TAGS } from "@/lib/utils";
 import { useState } from "react";
 
@@ -33,15 +34,22 @@ export default function CreatorOnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto max-w-lg space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Set up your creator profile</h1>
-          <p className="mt-1 text-muted-foreground">
+      <div className="mx-auto max-w-lg">
+        <div className="mb-6 flex justify-center">
+          <Wordmark size="lg" />
+        </div>
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-card-lg sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+            Final step
+          </p>
+          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">
+            Set up your creator profile
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             This is what restaurants will see when browsing creators.
           </p>
-        </div>
 
-        <form action={handleSubmit} className="space-y-6">
+          <form action={handleSubmit} className="mt-6 space-y-6">
           {/* Social handles */}
           <div className="space-y-4">
             <h2 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
@@ -62,6 +70,16 @@ export default function CreatorOnboardingPage() {
                   <Input id="tiktok_handle" name="tiktok_handle" placeholder="yourhandle" className="rounded-l-none" />
                 </div>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="youtube_handle">YouTube handle</Label>
+              <div className="flex">
+                <span className="inline-flex items-center rounded-l-lg border border-r-0 border-border bg-muted px-3 text-sm text-muted-foreground">@</span>
+                <Input id="youtube_handle" name="youtube_handle" placeholder="yourchannel" className="rounded-l-none" />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                We pull public stats from YouTube to power your UGC Score. Instagram and TikTok use your numbers below for now.
+              </p>
             </div>
           </div>
 
@@ -128,12 +146,22 @@ export default function CreatorOnboardingPage() {
             <Textarea id="bio" name="bio" placeholder="Tell restaurants a bit about your content style and audience…" rows={3} maxLength={500} />
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </p>
+            )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Saving…" : "Complete profile"}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              size="lg"
+              className="h-11 w-full"
+              disabled={loading}
+            >
+              {loading ? "Saving…" : "Complete profile"}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
