@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk ls *)",
+      "Bash(rtk find *)",
+      "Bash(rtk proxy *)",
+      "Bash(gh auth *)",
+      "Bash(rtk gh *)",
+      "Bash(rtk --version)",
+      "Bash(rtk read *)"
+    ]
+  }
+}
