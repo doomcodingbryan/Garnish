@@ -15,7 +15,9 @@ import type {
  * Server-only flag (NOT NEXT_PUBLIC) so it can never be flipped from the client
  * and is never bundled into the browser.
  */
-export const DEV_AUTH_BYPASS = process.env.DEV_AUTH_BYPASS === "true";
+export const DEV_AUTH_BYPASS =
+  process.env.NODE_ENV !== "production" &&
+  process.env.DEV_AUTH_BYPASS === "true";
 
 export type DevRole = "creator" | "restaurant";
 export const DEV_ROLE_COOKIE = "dev_role";

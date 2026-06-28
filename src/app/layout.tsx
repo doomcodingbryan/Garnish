@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces, Geist_Mono } from "next/font/google";
+import { Inter, Newsreader, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { DevModeBanner } from "@/components/DevModeBanner";
 
@@ -8,8 +8,10 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const newsreader = Newsreader({
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
   subsets: ["latin"],
 });
 
@@ -32,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${newsreader.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <DevModeBanner />

@@ -7,6 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { GradientAvatar } from "@/components/GradientAvatar";
 import { UgcScoreCard } from "@/components/UgcScoreCard";
+import {
+  ContentPortfolio,
+  Reviews,
+  AudienceCard,
+  PackagesCard,
+  PastCollabs,
+  VerifiedBadge,
+} from "@/components/CreatorProfileSections";
+import { SaveButton } from "@/components/SaveButton";
 import { formatCents, formatFollowerCount } from "@/lib/utils";
 import type {
   CreatorPlatform,
@@ -89,9 +98,9 @@ function ProfileHeader({
           <GradientAvatar
             name={name}
             src={src}
-            className="size-24 text-3xl ring-4 ring-card"
+            className="size-28 text-3xl ring-4 ring-card"
           />
-          <div className="flex-1 pb-1">{children}</div>
+          <div className="flex-1 pb-1 sm:pb-2">{children}</div>
         </div>
       </div>
     </div>
@@ -110,7 +119,7 @@ function CtaCard({
   disabled?: boolean;
 }) {
   return (
-    <div className="sticky top-24 rounded-2xl border border-border bg-card p-5 shadow-card">
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       {sublabel && (
         <p className="mb-3 text-sm text-muted-foreground">{sublabel}</p>
       )}
@@ -175,13 +184,18 @@ async function CreatorProfileView({
     .select("*")
     .eq("creator_id", cp.id);
   const platforms = (platformData ?? []) as CreatorPlatform[];
+  // Verified when at least one platform's stats come from a real API connection.
+  const verified = platforms.some((p) => p.source === "api");
 
   return (
     <div className="space-y-6">
       <ProfileHeader name={owner.display_name} src={owner.avatar_url}>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">
-          {owner.display_name}
-        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
+            {owner.display_name}
+          </h1>
+          {verified && <VerifiedBadge />}
+        </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           {cp.instagram_handle && (
             <span className="flex items-center gap-1">
@@ -228,7 +242,15 @@ async function CreatorProfileView({
             />
           </div>
 
+          <ContentPortfolio seed={owner.display_name} />
+
           <UgcScoreCard creator={cp} platforms={platforms} />
+
+          <AudienceCard seed={owner.display_name} location={cp.location} />
+
+          <PackagesCard creator={cp} />
+
+          <Reviews seed={owner.display_name} />
 
           {cp.niche_tags.length > 0 && (
             <Section title="Niches">
@@ -249,19 +271,24 @@ async function CreatorProfileView({
               </p>
             </Section>
           )}
+
+          <PastCollabs seed={owner.display_name} />
         </div>
 
         {canSendProposal && (
           <div className="lg:col-span-1">
-            <CtaCard
-              userId={userId}
-              label="Send proposal"
-              sublabel={
-                cp.flat_rate_cents != null
-                  ? `From ${formatCents(cp.flat_rate_cents)} per collab`
-                  : "Send a collab proposal"
-              }
-            />
+            <div className="sticky top-24 space-y-3">
+              <CtaCard
+                userId={userId}
+                label="Send proposal"
+                sublabel={
+                  cp.flat_rate_cents != null
+                    ? `From ${formatCents(cp.flat_rate_cents)} per collab`
+                    : "Send a collab proposal"
+                }
+              />
+              <SaveButton creatorId={userId} />
+            </div>
           </div>
         )}
       </div>
@@ -340,11 +367,13 @@ async function RestaurantProfileView({
 
         {canSendProposal && rp.is_accepting_collabs && (
           <div className="lg:col-span-1">
-            <CtaCard
-              userId={userId}
-              label="Send proposal"
-              sublabel="Pitch a collab to this restaurant"
-            />
+            <div className="sticky top-24">
+              <CtaCard
+                userId={userId}
+                label="Send proposal"
+                sublabel="Pitch a collab to this restaurant"
+              />
+            </div>
           </div>
         )}
       </div>

@@ -18,7 +18,7 @@ export function foodImage(id: string, w = 800): string {
   return `https://images.unsplash.com/${id}?q=80&w=${w}&auto=format&fit=crop`;
 }
 
-function hash(seed: string): number {
+export function hash(seed: string): number {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
   return Math.abs(h);

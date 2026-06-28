@@ -7,7 +7,10 @@
       "Bash(gh auth *)",
       "Bash(rtk gh *)",
       "Bash(rtk --version)",
-      "Bash(rtk read *)"
+      "Bash(rtk read *)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=2 --window-size=1100,420 --screenshot=header-zoom.png \"http://localhost:3000/profile/creator-1\")",
+      "Bash(curl -s -m 60 -o /dev/null -w \"recompile %{http_code}\\\\n\" http://localhost:3000/profile/creator-1)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=2 --window-size=1100,420 --screenshot=header-fixed.png \"http://localhost:3000/profile/creator-1\")"
     ]
   }
 }

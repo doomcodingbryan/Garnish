@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Wordmark } from "@/components/Wordmark";
 import { GradientAvatar } from "@/components/GradientAvatar";
 import { CategoryCard, type Category } from "@/components/CategoryCard";
+import { HowItWorks } from "@/components/HowItWorks";
 import {
   Reveal,
   Stagger,
@@ -39,8 +40,18 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-secondary/50">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-2 lg:py-28">
+      <section className="relative overflow-hidden">
+        {/* Full-bleed restaurant photo with a solid scrim for legibility */}
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={foodImage("photo-1517248135467-4c7edcad34c4", 1600)}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/55" />
+        </div>
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-2 lg:py-28">
           <Stagger delay={0.05}>
             <StaggerItem>
               <Badge variant="brand" className="mb-5 h-7 px-3 text-sm">
@@ -48,12 +59,12 @@ export default function LandingPage() {
               </Badge>
             </StaggerItem>
             <StaggerItem>
-              <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+              <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
                 Find the right creator for your restaurant
               </h1>
             </StaggerItem>
             <StaggerItem>
-              <p className="mt-6 max-w-md text-lg text-muted-foreground">
+              <p className="mt-6 max-w-md text-lg text-white/85">
                 Garnish connects restaurants with food creators for authentic
                 marketing collabs. No agencies, no guesswork, no DM haggling.
               </p>
@@ -69,18 +80,18 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   href="/auth/login"
-                  className={`${buttonVariants({ variant: "outline", size: "lg" })} h-12 px-6 text-base`}
+                  className="inline-flex h-12 items-center justify-center rounded-lg border border-white/40 bg-white/10 px-6 text-base font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
                 >
                   Sign in
                 </Link>
               </div>
             </StaggerItem>
             <StaggerItem>
-              <p className="mt-5 text-sm text-muted-foreground">
+              <p className="mt-5 text-sm text-white/75">
                 Join as a{" "}
-                <span className="font-medium text-foreground">restaurant</span>{" "}
+                <span className="font-medium text-white">restaurant</span>{" "}
                 or{" "}
-                <span className="font-medium text-foreground">creator</span>.
+                <span className="font-medium text-white">creator</span>.
                 Free to start.
               </p>
             </StaggerItem>
@@ -148,51 +159,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="px-4 py-24">
-        <div className="mx-auto max-w-5xl">
-          <Reveal className="max-w-xl">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              How it works
-            </p>
-            <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight">
-              From first match to confirmed collab
-            </h2>
-          </Reveal>
-          <Stagger className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: "Set up your profile",
-                body: "Restaurants list their vibe and what they're looking for. Creators share their niche, rates, and stats.",
-              },
-              {
-                title: "Discover and browse",
-                body: "Browse the other side filtered by niche, location, follower tier, and rate.",
-              },
-              {
-                title: "Send a proposal",
-                body: "Send a structured collab proposal with deliverables, posting window, and payment.",
-              },
-              {
-                title: "Negotiate and confirm",
-                body: "Counter once, then both parties confirm the locked terms to kick off the collab.",
-              },
-            ].map(({ title, body }, i) => (
-              <StaggerItem
-                key={title}
-                className="border-t-2 border-foreground/10 pt-5"
-              >
-                <span className="font-display text-5xl font-semibold text-primary/90">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="mt-4 text-base font-semibold">{title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {body}
-                </p>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* Browse by category */}
       <section className="px-4 pb-24">
