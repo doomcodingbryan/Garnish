@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
+import { MapPin } from "lucide-react";
 import Nav from "@/components/Nav";
 import { ProposalForm } from "@/components/ProposalForm";
+import { GradientAvatar } from "@/components/GradientAvatar";
+import { Badge } from "@/components/ui/badge";
 import { createProposal } from "@/app/actions/proposals";
 import type { CreatorProfile, RestaurantProfile } from "@/types/database";
 
@@ -55,7 +58,11 @@ export default async function NewProposalPage({
           </p>
         </div>
 
-        <ProposalTargetSummary profileId={profileId} role={targetUser.role as "creator" | "restaurant"} />
+        <ProposalTargetSummary
+          profileId={profileId}
+          role={targetUser.role as "creator" | "restaurant"}
+          name={targetUser.display_name}
+        />
 
         <div className="mt-8">
           <ProposalForm action={action} />
@@ -68,9 +75,11 @@ export default async function NewProposalPage({
 async function ProposalTargetSummary({
   profileId,
   role,
+  name,
 }: {
   profileId: string;
   role: "creator" | "restaurant";
+  name: string;
 }) {
   const supabase = await createClient();
 
@@ -85,31 +94,52 @@ async function ProposalTargetSummary({
     const cp = data as Pick<CreatorProfile, "instagram_handle" | "tiktok_handle" | "niche_tags" | "location">;
 
     return (
-      <div className="space-y-1 rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-card">
-        <div className="flex gap-3 text-muted-foreground">
-          {cp.instagram_handle && <span>@{cp.instagram_handle}</span>}
-          {cp.tiktok_handle && <span>@{cp.tiktok_handle} (TikTok)</span>}
+      <div className="flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-card">
+        <GradientAvatar name={name} className="size-12 text-base" />
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg font-semibold leading-tight">{name}</p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-muted-foreground">
+            {cp.instagram_handle && <span>@{cp.instagram_handle}</span>}
+            {cp.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3.5" />
+                {cp.location}
+              </span>
+            )}
+          </div>
+          {cp.niche_tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {cp.niche_tags.slice(0, 4).map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
-        {cp.location && <p className="text-muted-foreground">{cp.location}</p>}
-        {cp.niche_tags.length > 0 && (
-          <p className="text-muted-foreground">{cp.niche_tags.slice(0, 4).join(" · ")}</p>
-        )}
       </div>
     );
   }
 
   const { data } = await supabase
     .from("restaurant_profiles")
-    .select("name, cuisine, location")
+    .select("cuisine, location")
     .eq("user_id", profileId)
     .single();
 
   if (!data) return null;
-  const rp = data as Pick<RestaurantProfile, "name" | "cuisine" | "location">;
+  const rp = data as Pick<RestaurantProfile, "cuisine" | "location">;
 
   return (
-    <div className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-card">
-      {rp.cuisine} · {rp.location}
+    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card">
+      <GradientAvatar name={name} className="size-12 text-base" />
+      <div className="min-w-0">
+        <p className="font-display text-lg font-semibold leading-tight">{name}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+          <MapPin className="size-3.5" />
+          {rp.cuisine} · {rp.location}
+        </p>
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   VerifiedBadge,
 } from "@/components/CreatorProfileSections";
 import { SaveButton } from "@/components/SaveButton";
+import { openToFor } from "@/lib/creatorContent";
 import { formatCents, formatFollowerCount } from "@/lib/utils";
 import type {
   CreatorPlatform,
@@ -85,62 +86,28 @@ function ProfileHeader({
   name,
   src,
   children,
+  aside,
 }: {
   name: string;
   src?: string | null;
   children: React.ReactNode;
+  aside?: React.ReactNode;
 }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
-      <div className="h-32 sm:h-40" style={{ backgroundColor: HEADER_COVER }} />
+      <div className="h-28 sm:h-32" style={{ backgroundColor: HEADER_COVER }} />
       <div className="px-6 pb-6">
-        <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end">
-          <GradientAvatar
-            name={name}
-            src={src}
-            className="size-28 text-3xl ring-4 ring-card"
-          />
-          <div className="flex-1 pb-1 sm:pb-2">{children}</div>
+        {/* Avatar overlaps the cover; identity stacks below it, aside sits to the right */}
+        <GradientAvatar
+          name={name}
+          src={src}
+          className="-mt-12 size-24 text-3xl ring-4 ring-card"
+        />
+        <div className="mt-4 flex flex-col gap-x-8 gap-y-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">{children}</div>
+          {aside && <div className="shrink-0 sm:max-w-[15rem]">{aside}</div>}
         </div>
       </div>
-    </div>
-  );
-}
-
-function CtaCard({
-  userId,
-  label,
-  sublabel,
-  disabled,
-}: {
-  userId: string;
-  label: string;
-  sublabel?: string;
-  disabled?: boolean;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-      {sublabel && (
-        <p className="mb-3 text-sm text-muted-foreground">{sublabel}</p>
-      )}
-      {disabled ? (
-        <button
-          disabled
-          className={`${buttonVariants({ size: "lg" })} h-11 w-full cursor-not-allowed opacity-60`}
-        >
-          {label}
-        </button>
-      ) : (
-        <Link
-          href={`/proposals/new/${userId}`}
-          className={`${buttonVariants({ size: "lg" })} h-11 w-full`}
-        >
-          {label}
-        </Link>
-      )}
-      <p className="mt-3 text-center text-xs text-muted-foreground">
-        Structured terms · counter once · both confirm
-      </p>
     </div>
   );
 }
@@ -186,10 +153,30 @@ async function CreatorProfileView({
   const platforms = (platformData ?? []) as CreatorPlatform[];
   // Verified when at least one platform's stats come from a real API connection.
   const verified = platforms.some((p) => p.source === "api");
+  const openTo = openToFor(owner.display_name);
 
   return (
     <div className="space-y-6">
-      <ProfileHeader name={owner.display_name} src={owner.avatar_url}>
+      <ProfileHeader
+        name={owner.display_name}
+        src={owner.avatar_url}
+        aside={
+          openTo.length > 0 ? (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground sm:text-right">
+                Open to
+              </p>
+              <div className="flex flex-wrap gap-1.5 sm:justify-end">
+                {openTo.map((t) => (
+                  <Badge key={t} variant="outline">
+                    {t}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : undefined
+        }
+      >
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display text-3xl font-semibold tracking-tight">
             {owner.display_name}
@@ -220,77 +207,77 @@ async function CreatorProfileView({
             </span>
           )}
         </div>
-      </ProfileHeader>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <div className="grid grid-cols-3 gap-3">
-            <Stat label="Followers" value={formatFollowerCount(cp.follower_count)} />
-            <Stat
-              label="Engagement"
-              value={
-                cp.engagement_rate != null ? `${cp.engagement_rate}%` : "Not set"
-              }
-            />
-            <Stat
-              label="Rate"
-              value={
-                cp.flat_rate_cents != null
-                  ? formatCents(cp.flat_rate_cents)
-                  : "Not set"
-              }
-            />
-          </div>
-
-          <ContentPortfolio seed={owner.display_name} />
-
-          <UgcScoreCard creator={cp} platforms={platforms} />
-
-          <AudienceCard seed={owner.display_name} location={cp.location} />
-
-          <PackagesCard creator={cp} />
-
-          <Reviews seed={owner.display_name} />
-
-          {cp.niche_tags.length > 0 && (
-            <Section title="Niches">
-              <div className="flex flex-wrap gap-1.5">
-                {cp.niche_tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </Section>
-          )}
-
-          {cp.bio && (
-            <Section title="About">
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                {cp.bio}
-              </p>
-            </Section>
-          )}
-
-          <PastCollabs seed={owner.display_name} />
-        </div>
-
-        {canSendProposal && (
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-3">
-              <CtaCard
-                userId={userId}
-                label="Send proposal"
-                sublabel={
-                  cp.flat_rate_cents != null
-                    ? `From ${formatCents(cp.flat_rate_cents)} per collab`
-                    : "Send a collab proposal"
-                }
-              />
-              <SaveButton creatorId={userId} />
+        {cp.niche_tags.length > 0 && (
+          <div className="mt-3">
+            <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+              Specializes in
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {cp.niche_tags.map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  {tag}
+                </Badge>
+              ))}
             </div>
           </div>
         )}
+
+        {canSendProposal && (
+          <div className="mt-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/proposals/new/${userId}`}
+                className={`${buttonVariants({ size: "lg" })} h-11 px-6`}
+              >
+                Send proposal
+              </Link>
+              <SaveButton creatorId={userId} className="w-auto px-5" />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {cp.flat_rate_cents != null
+                ? `From ${formatCents(cp.flat_rate_cents)} per collab · `
+                : ""}
+              Structured terms, counter once, both confirm.
+            </p>
+          </div>
+        )}
+      </ProfileHeader>
+
+      <div className="space-y-6">
+        <div className="grid grid-cols-3 gap-3">
+          <Stat label="Followers" value={formatFollowerCount(cp.follower_count)} />
+          <Stat
+            label="Engagement"
+            value={cp.engagement_rate != null ? `${cp.engagement_rate}%` : "Not set"}
+          />
+          <Stat
+            label="Rate"
+            value={
+              cp.flat_rate_cents != null ? formatCents(cp.flat_rate_cents) : "Not set"
+            }
+          />
+        </div>
+
+        <ContentPortfolio seed={owner.display_name} />
+
+        <UgcScoreCard creator={cp} platforms={platforms} />
+
+        <AudienceCard seed={owner.display_name} location={cp.location} />
+
+        <PackagesCard creator={cp} />
+
+        <Reviews seed={owner.display_name} />
+
+        {cp.bio && (
+          <Section title="About">
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {cp.bio}
+            </p>
+          </Section>
+        )}
+
+        <PastCollabs seed={owner.display_name} />
       </div>
     </div>
   );
@@ -317,7 +304,26 @@ async function RestaurantProfileView({
 
   return (
     <div className="space-y-6">
-      <ProfileHeader name={rp.name} src={owner.avatar_url}>
+      <ProfileHeader
+        name={rp.name}
+        src={owner.avatar_url}
+        aside={
+          rp.collab_types.length > 0 ? (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground sm:text-right">
+                Looking for
+              </p>
+              <div className="flex flex-wrap gap-1.5 sm:justify-end">
+                {rp.collab_types.map((type) => (
+                  <Badge key={type} variant="outline">
+                    {type}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : undefined
+        }
+      >
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display text-3xl font-semibold tracking-tight">
             {rp.name}
@@ -332,49 +338,37 @@ async function RestaurantProfileView({
           <MapPin className="size-3.5" />
           {rp.cuisine} · {rp.location}
         </p>
-      </ProfileHeader>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          {rp.collab_types.length > 0 && (
-            <Section title="Looking for">
-              <div className="flex flex-wrap gap-1.5">
-                {rp.collab_types.map((type) => (
-                  <Badge key={type} variant="secondary">
-                    {type}
-                  </Badge>
-                ))}
-              </div>
-            </Section>
-          )}
-
-          {rp.aesthetic_description && (
-            <Section title="Aesthetic">
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                {rp.aesthetic_description}
-              </p>
-            </Section>
-          )}
-
-          {rp.description && (
-            <Section title="About">
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                {rp.description}
-              </p>
-            </Section>
-          )}
-        </div>
 
         {canSendProposal && rp.is_accepting_collabs && (
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <CtaCard
-                userId={userId}
-                label="Send proposal"
-                sublabel="Pitch a collab to this restaurant"
-              />
-            </div>
+          <div className="mt-5">
+            <Link
+              href={`/proposals/new/${userId}`}
+              className={`${buttonVariants({ size: "lg" })} h-11 px-6`}
+            >
+              Send proposal
+            </Link>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Pitch a collab · structured terms, counter once, both confirm.
+            </p>
           </div>
+        )}
+      </ProfileHeader>
+
+      <div className="space-y-6">
+        {rp.aesthetic_description && (
+          <Section title="Aesthetic">
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {rp.aesthetic_description}
+            </p>
+          </Section>
+        )}
+
+        {rp.description && (
+          <Section title="About">
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {rp.description}
+            </p>
+          </Section>
         )}
       </div>
     </div>

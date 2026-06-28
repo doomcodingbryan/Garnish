@@ -10,7 +10,12 @@
       "Bash(rtk read *)",
       "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=2 --window-size=1100,420 --screenshot=header-zoom.png \"http://localhost:3000/profile/creator-1\")",
       "Bash(curl -s -m 60 -o /dev/null -w \"recompile %{http_code}\\\\n\" http://localhost:3000/profile/creator-1)",
-      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=2 --window-size=1100,420 --screenshot=header-fixed.png \"http://localhost:3000/profile/creator-1\")"
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=2 --window-size=1100,420 --screenshot=header-fixed.png \"http://localhost:3000/profile/creator-1\")",
+      "Bash(curl -s -m 60 -o /dev/null -w \"creator %{http_code}\\\\n\" http://localhost:3000/profile/creator-1)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=2 --window-size=1100,640 --screenshot=header-actions.png \"http://localhost:3000/profile/creator-1\")",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1.6 --window-size=1180,520 --screenshot=header-bal2.png \"http://localhost:3000/profile/creator-1\")",
+      "Bash(curl -s -m 60 -o /dev/null -w \"propnew %{http_code}\\\\n\" http://localhost:3000/proposals/new/creator-1)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1.5 --window-size=1000,640 --screenshot=\"propnew-fixed.png\" \"http://localhost:3000/proposals/new/creator-1\")"
     ]
   }
 }

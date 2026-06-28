@@ -1,5 +1,17 @@
 import { foodImage, FOOD_IMAGES, hash, ratingFor } from "@/lib/images";
+import { COLLAB_TYPES } from "@/lib/utils";
 import type { CreatorProfile } from "@/types/database";
+
+/** Collab types this creator is open to — the creator-side mirror of a
+ * restaurant's "Looking for". Deterministic placeholder until creators set it. */
+export function openToFor(seed: string): string[] {
+  const start = hash(`${seed}#open`);
+  const n = 2 + (hash(`${seed}#openN`) % 2); // 2 or 3
+  return Array.from(
+    { length: Math.min(n, COLLAB_TYPES.length) },
+    (_, i) => COLLAB_TYPES[(start + i) % COLLAB_TYPES.length]
+  );
+}
 
 // Deterministic placeholder content for a creator, seeded by a stable string
 // (display name). Same philosophy as images.ts: realistic stand-in data until
