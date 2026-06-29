@@ -16,6 +16,14 @@ import {
   VerifiedBadge,
 } from "@/components/CreatorProfileSections";
 import { SaveButton } from "@/components/SaveButton";
+import {
+  RestaurantStats,
+  RestaurantPhotos,
+  WhatTheyOffer,
+  IdealCreator,
+  RestaurantReviews,
+  PastCreators,
+} from "@/components/RestaurantProfileSections";
 import { openToFor } from "@/lib/creatorContent";
 import { formatCents, formatFollowerCount } from "@/lib/utils";
 import type {
@@ -355,6 +363,14 @@ async function RestaurantProfileView({
       </ProfileHeader>
 
       <div className="space-y-6">
+        <RestaurantStats seed={rp.name} />
+
+        <RestaurantPhotos seed={rp.name} />
+
+        <WhatTheyOffer seed={rp.name} />
+
+        <IdealCreator seed={rp.name} />
+
         {rp.aesthetic_description && (
           <Section title="Aesthetic">
             <p className="whitespace-pre-wrap text-sm text-muted-foreground">
@@ -370,6 +386,10 @@ async function RestaurantProfileView({
             </p>
           </Section>
         )}
+
+        <RestaurantReviews seed={rp.name} />
+
+        <PastCreators seed={rp.name} />
       </div>
     </div>
   );

@@ -9,11 +9,18 @@ import {
   ChevronRight,
   ArrowRight,
   Star,
+  Banknote,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { GradientAvatar } from "@/components/GradientAvatar";
-import { pickImages, ratingFor, isTopRated } from "@/lib/images";
+import { pickImages, ratingFor } from "@/lib/images";
+import {
+  compFor,
+  matchScoreFor,
+  priceTierFor,
+  reviewCountFor,
+} from "@/lib/restaurantContent";
 import { cn } from "@/lib/utils";
 import type { RestaurantProfile, UserProfile } from "@/types/database";
 
@@ -31,7 +38,18 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantRow }) {
   const images = pickImages(`${restaurant.name}${restaurant.cuisine}`, 3);
   const [[idx, dir], setState] = useState<[number, number]>([0, 0]);
   const rating = ratingFor(restaurant.name);
-  const topRated = isTopRated(restaurant.name);
+  const reviews = reviewCountFor(restaurant.name);
+  const match = matchScoreFor(restaurant.name);
+  const price = priceTierFor(restaurant.name);
+  const comp = compFor(restaurant.name);
+  const money = (c: number) => `$${Math.round(c / 100).toLocaleString()}`;
+  const compRange = `${money(comp.minCents)}–${money(comp.maxCents)}`;
+  const compLabel =
+    comp.kind === "comp"
+      ? "Comped meal"
+      : comp.kind === "both"
+        ? `Comp + ${compRange}`
+        : `Pays ${compRange}`;
 
   const go = (e: React.MouseEvent, d: number) => {
     e.preventDefault();
@@ -93,16 +111,15 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantRow }) {
                 {restaurant.cuisine}
               </Badge>
             )}
-            {restaurant.collab_types[0] && (
-              <Badge className="border-0 bg-background/80 text-foreground backdrop-blur-sm">
-                {restaurant.collab_types[0]}
-              </Badge>
-            )}
+            <Badge className="border-0 bg-background/80 font-medium text-foreground backdrop-blur-sm">
+              {price}
+            </Badge>
           </div>
 
           <Badge className="absolute right-3 top-3 gap-1 border-0 bg-background/80 text-foreground backdrop-blur-sm">
             <Star className="size-3.5 fill-warning text-warning" />
             {rating.toFixed(1)}
+            <span className="text-muted-foreground">({reviews})</span>
           </Badge>
 
           <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
@@ -133,22 +150,46 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantRow }) {
             className="relative z-10 -mt-9 size-16 text-xl ring-4 ring-card"
           />
 
-          <div className="mt-2 flex items-start justify-between gap-2">
-            <h3 className="font-display text-xl font-semibold leading-tight">
-              {restaurant.name}
-            </h3>
-            {topRated && (
-              <Badge variant="outline" className="shrink-0">
-                Top rated
-              </Badge>
-            )}
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="font-display text-xl font-semibold leading-tight">
+                {restaurant.name}
+              </h3>
+              <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+                <MapPin className="size-3.5 shrink-0" />
+                {restaurant.cuisine} &bull; {restaurant.location}
+              </p>
+            </div>
+            {/* Fit score for the viewing creator */}
+            <div className="shrink-0 rounded-lg bg-primary/10 px-2.5 py-1 text-center">
+              <p className="font-display text-base font-semibold leading-none text-primary tabular-nums">
+                {match}%
+              </p>
+              <p className="mt-0.5 text-[0.6rem] uppercase tracking-wide text-muted-foreground">
+                match
+              </p>
+            </div>
           </div>
 
-          {restaurant.location && (
-            <p className="mt-3 flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="size-3.5 shrink-0" />
-              {restaurant.cuisine} &bull; {restaurant.location}
-            </p>
+          {/* Compensation — the signal creators decide on */}
+          <div className="mt-3 flex items-center gap-2 rounded-xl bg-secondary px-3 py-2">
+            <Banknote className="size-4 shrink-0 text-success" />
+            <span className="text-sm font-medium">{compLabel}</span>
+          </div>
+
+          {restaurant.collab_types.length > 0 && (
+            <div className="mt-3">
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+                Looking for
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {restaurant.collab_types.slice(0, 4).map((t) => (
+                  <Badge key={t} variant="secondary" className="text-xs">
+                    {t}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           )}
 
           {desc && (
@@ -157,14 +198,12 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantRow }) {
             </p>
           )}
 
-          <div className="mt-4 flex items-center justify-between pt-2">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-4 flex items-center justify-between border-t border-border/70 pt-3">
+            <p className="text-sm">
               {restaurant.is_accepting_collabs ? (
-                <span className="font-medium text-success">
-                  Accepting collabs
-                </span>
+                <span className="font-medium text-success">Accepting collabs</span>
               ) : (
-                "Not accepting collabs"
+                <span className="text-muted-foreground">Not accepting collabs</span>
               )}
             </p>
             <span className={buttonVariants({ size: "lg" })}>
