@@ -3,6 +3,7 @@ import { ArrowRight, Star, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { GradientAvatar } from "@/components/GradientAvatar";
+import { SaveButton } from "@/components/SaveButton";
 import { UgcScoreBadge } from "@/components/UgcScoreBadge";
 import { pickImages, ratingFor, isTopRated } from "@/lib/images";
 import { formatFollowerCount, formatCents } from "@/lib/utils";
@@ -38,10 +39,15 @@ export function CreatorCard({ creator }: { creator: CreatorRow }) {
               {creator.niche_tags[0]}
             </Badge>
           )}
-          <Badge className="absolute right-3 top-3 gap-1 border-0 bg-background/80 text-foreground backdrop-blur-sm">
+          <Badge className="absolute bottom-3 left-3 gap-1 border-0 bg-background/80 text-foreground backdrop-blur-sm">
             <Star className="size-3.5 fill-warning text-warning" />
             {rating.toFixed(1)}
           </Badge>
+          <SaveButton
+            profileId={creator.user.id}
+            variant="icon"
+            className="absolute right-3 top-3"
+          />
           <UgcScoreBadge
             score={creator.ugc_score}
             tier={creator.ugc_tier}

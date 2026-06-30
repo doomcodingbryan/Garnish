@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { GradientAvatar } from "@/components/GradientAvatar";
+import { SaveButton } from "@/components/SaveButton";
 import { pickImages, ratingFor } from "@/lib/images";
 import {
   compFor,
@@ -116,11 +117,16 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantRow }) {
             </Badge>
           </div>
 
-          <Badge className="absolute right-3 top-3 gap-1 border-0 bg-background/80 text-foreground backdrop-blur-sm">
+          <Badge className="absolute bottom-3 left-3 gap-1 border-0 bg-background/80 text-foreground backdrop-blur-sm">
             <Star className="size-3.5 fill-warning text-warning" />
             {rating.toFixed(1)}
             <span className="text-muted-foreground">({reviews})</span>
           </Badge>
+          <SaveButton
+            profileId={restaurant.user.id}
+            variant="icon"
+            className="absolute right-3 top-3"
+          />
 
           <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
             {images.map((_, i) => (

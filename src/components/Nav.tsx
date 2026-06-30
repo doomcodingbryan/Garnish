@@ -32,6 +32,7 @@ export default async function Nav() {
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="hidden items-center gap-1 sm:flex">
               <NavLink href="/discover">Discover</NavLink>
+              <NavLink href="/saved">Saved</NavLink>
               <NavLink href="/proposals">Proposals</NavLink>
               <NavLink href="/matches">Matches</NavLink>
             </div>
@@ -58,6 +59,7 @@ export default async function Nav() {
                 <div className="my-1 h-px bg-border" />
                 <div className="flex flex-col gap-0.5 sm:hidden">
                   <DropdownLink href="/discover">Discover</DropdownLink>
+                  <DropdownLink href="/saved">Saved</DropdownLink>
                   <DropdownLink href="/proposals">Proposals</DropdownLink>
                   <DropdownLink href="/matches">Matches</DropdownLink>
                   <div className="my-1 h-px bg-border" />

@@ -16,6 +16,8 @@ import {
   VerifiedBadge,
 } from "@/components/CreatorProfileSections";
 import { SaveButton } from "@/components/SaveButton";
+import { StickyProposalBar } from "@/components/StickyProposalBar";
+import { Reveal } from "@/components/motion";
 import {
   RestaurantStats,
   RestaurantPhotos,
@@ -240,7 +242,7 @@ async function CreatorProfileView({
               >
                 Send proposal
               </Link>
-              <SaveButton creatorId={userId} className="w-auto px-5" />
+              <SaveButton profileId={userId} className="w-auto px-5" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               {cp.flat_rate_cents != null
@@ -252,40 +254,69 @@ async function CreatorProfileView({
         )}
       </ProfileHeader>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-3 gap-3">
-          <Stat label="Followers" value={formatFollowerCount(cp.follower_count)} />
-          <Stat
-            label="Engagement"
-            value={cp.engagement_rate != null ? `${cp.engagement_rate}%` : "Not set"}
-          />
-          <Stat
-            label="Rate"
-            value={
-              cp.flat_rate_cents != null ? formatCents(cp.flat_rate_cents) : "Not set"
-            }
-          />
-        </div>
+      {canSendProposal && (
+        <StickyProposalBar
+          name={owner.display_name}
+          href={`/proposals/new/${userId}`}
+          avatarSrc={owner.avatar_url}
+          subtitle={
+            cp.flat_rate_cents != null
+              ? `From ${formatCents(cp.flat_rate_cents)} per collab`
+              : undefined
+          }
+        />
+      )}
 
-        <ContentPortfolio seed={owner.display_name} />
+      <div className={`space-y-6 ${canSendProposal ? "pb-24" : ""}`}>
+        <Reveal>
+          <div className="grid grid-cols-3 gap-3">
+            <Stat label="Followers" value={formatFollowerCount(cp.follower_count)} />
+            <Stat
+              label="Engagement"
+              value={cp.engagement_rate != null ? `${cp.engagement_rate}%` : "Not set"}
+            />
+            <Stat
+              label="Rate"
+              value={
+                cp.flat_rate_cents != null ? formatCents(cp.flat_rate_cents) : "Not set"
+              }
+            />
+          </div>
+        </Reveal>
 
-        <UgcScoreCard creator={cp} platforms={platforms} />
+        <Reveal>
+          <ContentPortfolio seed={owner.display_name} />
+        </Reveal>
 
-        <AudienceCard seed={owner.display_name} location={cp.location} />
+        <Reveal>
+          <UgcScoreCard creator={cp} platforms={platforms} />
+        </Reveal>
 
-        <PackagesCard creator={cp} />
+        <Reveal>
+          <AudienceCard seed={owner.display_name} location={cp.location} />
+        </Reveal>
 
-        <Reviews seed={owner.display_name} />
+        <Reveal>
+          <PackagesCard creator={cp} />
+        </Reveal>
+
+        <Reveal>
+          <Reviews seed={owner.display_name} />
+        </Reveal>
 
         {cp.bio && (
-          <Section title="About">
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-              {cp.bio}
-            </p>
-          </Section>
+          <Reveal>
+            <Section title="About">
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {cp.bio}
+              </p>
+            </Section>
+          </Reveal>
         )}
 
-        <PastCollabs seed={owner.display_name} />
+        <Reveal>
+          <PastCollabs seed={owner.display_name} />
+        </Reveal>
       </div>
     </div>
   );
@@ -349,12 +380,15 @@ async function RestaurantProfileView({
 
         {canSendProposal && rp.is_accepting_collabs && (
           <div className="mt-5">
-            <Link
-              href={`/proposals/new/${userId}`}
-              className={`${buttonVariants({ size: "lg" })} h-11 px-6`}
-            >
-              Send proposal
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/proposals/new/${userId}`}
+                className={`${buttonVariants({ size: "lg" })} h-11 px-6`}
+              >
+                Send proposal
+              </Link>
+              <SaveButton profileId={userId} className="w-auto px-5" />
+            </div>
             <p className="mt-2 text-xs text-muted-foreground">
               Pitch a collab · structured terms, counter once, both confirm.
             </p>
@@ -362,34 +396,63 @@ async function RestaurantProfileView({
         )}
       </ProfileHeader>
 
-      <div className="space-y-6">
-        <RestaurantStats seed={rp.name} />
+      {canSendProposal && rp.is_accepting_collabs && (
+        <StickyProposalBar
+          name={rp.name}
+          href={`/proposals/new/${userId}`}
+          avatarSrc={owner.avatar_url}
+          subtitle={`${rp.cuisine} · ${rp.location}`}
+        />
+      )}
 
-        <RestaurantPhotos seed={rp.name} />
+      <div
+        className={`space-y-6 ${
+          canSendProposal && rp.is_accepting_collabs ? "pb-24" : ""
+        }`}
+      >
+        <Reveal>
+          <RestaurantStats seed={rp.name} />
+        </Reveal>
 
-        <WhatTheyOffer seed={rp.name} />
+        <Reveal>
+          <RestaurantPhotos seed={rp.name} />
+        </Reveal>
 
-        <IdealCreator seed={rp.name} />
+        <Reveal>
+          <WhatTheyOffer seed={rp.name} />
+        </Reveal>
+
+        <Reveal>
+          <IdealCreator seed={rp.name} />
+        </Reveal>
 
         {rp.aesthetic_description && (
-          <Section title="Aesthetic">
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-              {rp.aesthetic_description}
-            </p>
-          </Section>
+          <Reveal>
+            <Section title="Aesthetic">
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {rp.aesthetic_description}
+              </p>
+            </Section>
+          </Reveal>
         )}
 
         {rp.description && (
-          <Section title="About">
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-              {rp.description}
-            </p>
-          </Section>
+          <Reveal>
+            <Section title="About">
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {rp.description}
+              </p>
+            </Section>
+          </Reveal>
         )}
 
-        <RestaurantReviews seed={rp.name} />
+        <Reveal>
+          <RestaurantReviews seed={rp.name} />
+        </Reveal>
 
-        <PastCreators seed={rp.name} />
+        <Reveal>
+          <PastCreators seed={rp.name} />
+        </Reveal>
       </div>
     </div>
   );

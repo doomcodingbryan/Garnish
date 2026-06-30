@@ -21,7 +21,11 @@
       "Bash(timeout 50 \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1.5 --window-size=1180,1180 --screenshot=resto-final.png \"http://localhost:3000/discover\")",
       "Bash(echo \"exit $?\")",
       "Bash(curl -s -m 30 -o /dev/null -w \"discover back to restaurant default %{http_code}\\\\n\" http://localhost:3000/discover)",
-      "Bash(timeout 50 \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1.3 --window-size=1120,1500 --screenshot=resto-profile.png \"http://localhost:3000/profile/restaurant-1\")"
+      "Bash(timeout 50 \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1.3 --window-size=1120,1500 --screenshot=resto-profile.png \"http://localhost:3000/profile/restaurant-1\")",
+      "Bash(rtk tsc *)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1280,1400 --screenshot=/private/tmp/claude-501/-Users-bchae-Garnish/770d449a-2001-4930-85d1-07dca87cb344/scratchpad/discover.png http://localhost:3000/discover)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1280,1600 --screenshot=/private/tmp/claude-501/-Users-bchae-Garnish/770d449a-2001-4930-85d1-07dca87cb344/scratchpad/profile.png http://localhost:3000/profile/creator-1)",
+      "Bash([ -f \"$LOG\" ])"
     ]
   }
 }
